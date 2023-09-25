@@ -92,7 +92,6 @@ export default class App extends Component {
     this.setState({ filter })
   }
 
-  /* eslint no-nested-ternary: "error" */
   render() {
     const { todoData, filter, edit } = this.state
     const doneCount = todoData.filter((el) => el.done).length

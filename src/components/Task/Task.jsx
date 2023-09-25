@@ -1,6 +1,8 @@
 import { Component } from 'react'
 import { formatDistanceToNow } from 'date-fns'
 import PropTypes from 'prop-types'
+
+import Timer from '../Timer'
 import './Task.css'
 
 export default class Task extends Component {
@@ -24,8 +26,16 @@ export default class Task extends Component {
   }
 
   render() {
-    const { label, onDeleted, onToggleDone, onToggleEdit, done, edit } =
-      this.props
+    const {
+      label,
+      onDeleted,
+      onToggleDone,
+      onToggleEdit,
+      done,
+      edit,
+      min,
+      sec,
+    } = this.props
     const { newDate } = this.state
 
     let classNames
@@ -48,6 +58,7 @@ export default class Task extends Component {
           />
           <label>
             <span className="description">{label}</span>
+            <Timer min={min} sec={sec} />
             <span className="created">
               created {formatDistanceToNow(newDate, { includeSeconds: true })}{' '}
               ago
