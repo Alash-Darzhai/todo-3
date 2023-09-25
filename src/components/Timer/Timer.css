@@ -1,0 +1,6 @@
+.new-todo-form__timer {
+    border: none;
+    font-size: 24px;
+    font-weight: inherit;
+    line-height: 1.4em;
+}
