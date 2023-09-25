@@ -1,15 +1,16 @@
-import { Component } from "react";
-import PropTypes from "prop-types";
+import { Component } from 'react'
+import PropTypes from 'prop-types'
 
-import Task from "../Task";
+import Task from '../Task'
 
-import "./TaskList.css";
+import './TaskList.css'
+
 export default class TaskList extends Component {
   render() {
     const { todos, onDeleted, onToggleDone, onToggleEdit, updateTask } =
-      this.props;
+      this.props
     const elements = todos.map((item) => {
-      const { id, label, ...itemProps } = item;
+      const { id, label, ...itemProps } = item
       return (
         <Task
           key={id}
@@ -21,9 +22,9 @@ export default class TaskList extends Component {
           onToggleEdit={() => onToggleEdit(id)}
           updateTask={updateTask}
         />
-      );
-    });
-    return <ul className="todo-list">{elements}</ul>;
+      )
+    })
+    return <ul className="todo-list">{elements}</ul>
   }
 }
 TaskList.defaultProps = {
@@ -32,11 +33,11 @@ TaskList.defaultProps = {
   onToggleDone: () => {},
   onToggleEdit: () => {},
   updateTask: () => {},
-};
+}
 TaskList.propTypes = {
   todos: PropTypes.arrayOf(PropTypes.objectOf),
   onDeleted: PropTypes.func,
   onToggleDone: PropTypes.func,
   onToggleEdit: PropTypes.func,
   updateTask: PropTypes.func,
-};
+}

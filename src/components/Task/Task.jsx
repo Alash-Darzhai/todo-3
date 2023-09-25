@@ -1,33 +1,41 @@
-import { Component } from "react";
-import { formatDistanceToNow } from "date-fns";
-import PropTypes from "prop-types";
-import "./Task.css";
+import { Component } from 'react'
+import { formatDistanceToNow } from 'date-fns'
+import PropTypes from 'prop-types'
+import './Task.css'
 
 export default class Task extends Component {
   state = {
-    label: "",
+    label: '',
     newDate: new Date(),
-  };
+  }
 
   onChangeValue = (e) => {
-    this.setState({ label: e.target.value });
-  };
+    this.setState({ label: e.target.value })
+  }
 
   onSubmitEdit = (e) => {
-    e.preventDefault();
-    const { id, updateTask } = this.props;
-    const { label } = this.state;
-    updateTask(label, id);
+    e.preventDefault()
+    const { id, updateTask } = this.props
+    const { label } = this.state
+    updateTask(label, id)
     this.setState({
-      label: "",
-    });
-  };
+      label: '',
+    })
+  }
+
   render() {
     const { label, onDeleted, onToggleDone, onToggleEdit, done, edit } =
-      this.props;
-    const { newDate } = this.state;
+      this.props
+    const { newDate } = this.state
 
-    const classNames = edit ? "editing" : done ? "completed" : "";
+    let classNames
+    if (edit) {
+      classNames = 'editing'
+    } else if (done) {
+      classNames = 'completed'
+    } else {
+      classNames = ''
+    }
 
     return (
       <li className={classNames}>
@@ -41,12 +49,22 @@ export default class Task extends Component {
           <label>
             <span className="description">{label}</span>
             <span className="created">
-              created {formatDistanceToNow(newDate, { includeSeconds: true })}{" "}
+              created {formatDistanceToNow(newDate, { includeSeconds: true })}{' '}
               ago
             </span>
           </label>
-          <button className="icon icon-edit" onClick={onToggleEdit}></button>
-          <button className="icon icon-destroy" onClick={onDeleted}></button>
+          <button
+            className="icon icon-edit"
+            type="button"
+            onClick={onToggleEdit}
+            aria-label="Edit"
+          />
+          <button
+            className="icon icon-destroy"
+            type="button"
+            onClick={onDeleted}
+            aria-label="Destroy"
+          />
         </div>
 
         <form onSubmit={this.onSubmitEdit}>
@@ -59,16 +77,16 @@ export default class Task extends Component {
           />
         </form>
       </li>
-    );
+    )
   }
 }
 Task.defaultProps = {
   onDeleted: () => {},
   onToggleDone: () => {},
   onToggleEdit: () => {},
-};
+}
 Task.propTypes = {
   onDeleted: PropTypes.func,
   onToggleDone: PropTypes.func,
   onToggleEdit: PropTypes.func,
-};
+}
