@@ -10,20 +10,22 @@ export default class App extends Component {
 
   state = {
     todoData: [
-      this.createTodoItem('Completed task'),
-      this.createTodoItem('Editing task'),
-      this.createTodoItem('Active task'),
+      this.createTodoItem('Completed task', 0, 0),
+      this.createTodoItem('Editing task', 0, 0),
+      this.createTodoItem('Active task', 0, 0),
     ],
     filter: 'all',
   }
 
-  createTodoItem(label) {
+  createTodoItem(label, min = 0, sec = 0) {
     return {
       label,
       done: false,
       edit: false,
       // eslint-disable-next-line no-plusplus
       id: this.maxId++,
+      min,
+      sec,
     }
   }
 
@@ -44,13 +46,8 @@ export default class App extends Component {
     })
   }
 
-  addItem = (text) => {
-    const newItem = {
-      label: text,
-      done: false,
-      // eslint-disable-next-line no-plusplus
-      id: this.maxId++,
-    }
+  addItem = (text, min, sec) => {
+    const newItem = this.createTodoItem(text, Number(min), Number(sec))
     this.setState(({ todoData }) => {
       const newArr = [...todoData, newItem]
       return {
