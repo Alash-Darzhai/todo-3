@@ -1,103 +1,109 @@
-import { Component } from 'react'
-import { formatDistanceToNow } from 'date-fns'
+import { useState } from 'react'
 import PropTypes from 'prop-types'
 
 import Timer from '../Timer'
-import './Task.css'
 
-export default class Task extends Component {
-  state = {
-    label: '',
-    newDate: new Date(),
+export default function Task({
+  label,
+  onDeleted,
+  onToggleDone,
+  onToggleEdit,
+  done,
+  edit,
+  id,
+  updateTask,
+  timer,
+  onPlay,
+  onPause,
+}) {
+  const [newLabel, setNewLabel] = useState('')
+
+  const onChangeValue = (e) => {
+    setNewLabel(e.target.value)
   }
 
-  onChangeValue = (e) => {
-    this.setState({ label: e.target.value })
-  }
-
-  onSubmitEdit = (e) => {
+  const onSubmitEdit = (e) => {
     e.preventDefault()
-    const { id, updateTask } = this.props
-    const { label } = this.state
-    updateTask(label, id)
-    this.setState({
-      label: '',
-    })
+    updateTask(newLabel, id)
+    setNewLabel('')
   }
 
-  render() {
-    const {
-      label,
-      onDeleted,
-      onToggleDone,
-      onToggleEdit,
-      done,
-      edit,
-      min,
-      sec,
-    } = this.props
-    const { newDate } = this.state
+  const handleBlur = () => {
+    updateTask(newLabel, id)
+    updateTask(newLabel, id)
+  }
 
-    let classNames
-    if (edit) {
-      classNames = 'editing'
-    } else if (done) {
-      classNames = 'completed'
-    } else {
-      classNames = ''
+  const handleKeyDown = (e) => {
+    if (e.key === 'Escape') {
+      updateTask(newLabel, id)
     }
-
-    return (
-      <li className={classNames}>
-        <div className="view">
-          <input
-            className="toggle"
-            type="checkbox"
-            checked={done}
-            onChange={onToggleDone}
-          />
-          <label>
-            <span className="description">{label}</span>
-            <Timer min={min} sec={sec} />
-            <span className="created">
-              created {formatDistanceToNow(newDate, { includeSeconds: true })}{' '}
-              ago
-            </span>
-          </label>
-          <button
-            className="icon icon-edit"
-            type="button"
-            onClick={onToggleEdit}
-            aria-label="Edit"
-          />
-          <button
-            className="icon icon-destroy"
-            type="button"
-            onClick={onDeleted}
-            aria-label="Destroy"
-          />
-        </div>
-
-        <form onSubmit={this.onSubmitEdit}>
-          <input
-            type="text"
-            className="edit"
-            defaultValue={label}
-            onKeyDown={this.onChangeValue}
-            autoFocus
-          />
-        </form>
-      </li>
-    )
   }
+
+  let classNames
+  if (edit) {
+    classNames = 'editing'
+  } else if (done) {
+    classNames = 'completed'
+  } else {
+    classNames = ''
+  }
+
+  return (
+    <li className={classNames}>
+      <div className="view">
+        <input
+          className="toggle"
+          type="checkbox"
+          checked={done}
+          onChange={onToggleDone}
+        />
+        <label>
+          <span className="description">{label}</span>
+          <Timer timer={timer} onPlay={onPlay} onPause={onPause} />
+          <span className="created" />
+        </label>
+        <button
+          className="icon icon-edit"
+          type="button"
+          onClick={onToggleEdit}
+          aria-label="Edit"
+        />
+        <button
+          className="icon icon-destroy"
+          type="button"
+          onClick={onDeleted}
+          aria-label="Destroy"
+        />
+      </div>
+
+      <form onSubmit={onSubmitEdit}>
+        <input
+          type="text"
+          className="edit"
+          defaultValue={label}
+          onChange={onChangeValue}
+          onBlur={handleBlur}
+          onKeyDown={handleKeyDown}
+          autoFocus
+        />
+      </form>
+    </li>
+  )
 }
+
 Task.defaultProps = {
   onDeleted: () => {},
   onToggleDone: () => {},
   onToggleEdit: () => {},
 }
+
 Task.propTypes = {
   onDeleted: PropTypes.func,
   onToggleDone: PropTypes.func,
   onToggleEdit: PropTypes.func,
+  label: PropTypes.string.isRequired,
+  done: PropTypes.bool.isRequired,
+  edit: PropTypes.bool.isRequired,
+  id: PropTypes.number.isRequired,
+  updateTask: PropTypes.func.isRequired,
 }

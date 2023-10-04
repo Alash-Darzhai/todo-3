@@ -48,3 +48,12 @@
 .new-todo-form__submit {
   display: none;
 }
+
+.new-todo-form__timer {
+  font-size: 24px;
+  font-family: inherit;
+  font-weight: inherit;
+  line-height: 1.4em;
+  color: inherit;
+  border: none;
+}

@@ -1,132 +1,140 @@
-import { Component } from 'react'
+/* eslint-disable no-plusplus */
+import { useState, useEffect } from 'react'
 
 import NewTaskForm from '../NewTaskForm/NewTaskForm'
-import TaskList from '../TaskList'
-import Footer from '../Footer'
+import TaskList from '../TaskList/TaskList'
+import Footer from '../Footer/Footer'
+
 import './App.css'
 
-export default class App extends Component {
-  maxId = 100
-
-  state = {
-    todoData: [
-      this.createTodoItem('Completed task', 0, 0),
-      this.createTodoItem('Editing task', 0, 0),
-      this.createTodoItem('Active task', 0, 0),
-    ],
-    filter: 'all',
-  }
-
-  createTodoItem(label, min = 0, sec = 0) {
+export default function App() {
+  function createTodoItem(label, min = 0, sec = 0) {
+    const totalSeconds = +min * 60 + +sec
     return {
       label,
       done: false,
       edit: false,
-      // eslint-disable-next-line no-plusplus
-      id: this.maxId++,
+      id: Date.now() + Math.floor(Math.random() * 100),
+      timer: totalSeconds,
       min,
       sec,
+      pause: true,
     }
   }
 
-  deleteItem = (id) => {
-    this.setState(({ todoData }) => {
-      return {
-        todoData: todoData.filter((el) => el.id !== id),
-      }
+  const [todoData, setTodoData] = useState([])
+
+  const [filter, setFilter] = useState('all')
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTodoData((data) => {
+        const newArr = data.map((el) => {
+          if (el.timer === 0) {
+            return el
+          }
+          if (!el.pause) {
+            // eslint-disable-next-line no-param-reassign
+            el.timer -= 1
+          }
+          return el
+        })
+        return newArr
+      })
+    }, 1000)
+    return () => clearInterval(interval)
+  }, [])
+
+  const onPlay = (id) => {
+    setTodoData((prevTodoData) => {
+      const newArr = prevTodoData.map((el) =>
+        el.id === id ? { ...el, pause: false } : { ...el },
+      )
+      return newArr
     })
   }
 
-  deletedCompletedItems = () => {
-    this.setState(({ todoData }) => {
-      const newArr = todoData.filter((el) => !el.done)
-      return {
-        todoData: newArr,
-      }
+  const onPause = (id) => {
+    setTodoData((prevTodoData) => {
+      const newArr = prevTodoData.map((el) =>
+        el.id === id ? { ...el, pause: true } : { ...el },
+      )
+      return newArr
     })
   }
 
-  addItem = (text, min, sec) => {
-    const newItem = this.createTodoItem(text, Number(min), Number(sec))
-    this.setState(({ todoData }) => {
-      const newArr = [...todoData, newItem]
-      return {
-        todoData: newArr,
-      }
+  const deleteItem = (id) => {
+    setTodoData((prevTodoData) => prevTodoData.filter((el) => el.id !== id))
+  }
+
+  const deletedCompletedItems = () => {
+    setTodoData((prevTodoData) => prevTodoData.filter((el) => !el.done))
+  }
+
+  const addItem = (text, min, sec) => {
+    const newItem = createTodoItem(text, Number(min), Number(sec))
+    return setTodoData([...todoData, newItem])
+  }
+
+  const onToggleDone = (id) => {
+    setTodoData((prevTodoData) => {
+      return prevTodoData.map((item) => {
+        return item.id === id ? { ...item, done: !item.done } : item
+      })
     })
   }
 
-  onToggleDone = (id) => {
-    this.setState(({ todoData }) => {
-      return {
-        todoData: todoData.map((item) => {
-          return item.id === id ? { ...item, done: !item.done } : item
-        }),
-      }
+  const onToggleEdit = (id) => {
+    setTodoData((prevTodoData) => {
+      return prevTodoData.map((item) => {
+        return item.id === id ? { ...item, edit: true } : item
+      })
     })
   }
 
-  onToggleEdit = (id) => {
-    this.setState(({ todoData }) => {
-      return {
-        todoData: todoData.map((item) => {
-          return item.id === id ? { ...item, edit: true } : item
-        }),
-      }
+  const updateTask = (labelUpdate, id) => {
+    setTodoData((arr) => {
+      return arr.map((item) => {
+        return item.id === id
+          ? { ...item, label: labelUpdate, edit: false }
+          : item
+      })
     })
   }
 
-  updateTask = (labelUpdate, id) => {
-    this.setState(({ todoData }) => {
-      return {
-        todoData: todoData.map((item) => {
-          return item.id === id
-            ? { ...item, label: labelUpdate, edit: false }
-            : item
-        }),
-      }
-    })
-  }
-
-  onFilterChange = (filter) => {
-    this.setState({ filter })
-  }
-
-  render() {
-    const { todoData, filter, edit } = this.state
-    const doneCount = todoData.filter((el) => el.done).length
-    const todoCount = todoData.length - doneCount
-    let filteredItems
-
-    if (filter === 'all') {
-      filteredItems = todoData
-    } else if (filter === 'active') {
-      filteredItems = todoData.filter((item) => !item.done)
-    } else {
-      filteredItems = todoData.filter((item) => item.done)
+  const filteredItems = todoData.filter((item) => {
+    if (filter === 'active') {
+      return !item.done
     }
+    if (filter === 'completed') {
+      return item.done
+    }
+    return true
+  })
 
-    return (
-      <section className="todoapp">
-        <NewTaskForm onItemAdded={this.addItem} />
-        <section className="main">
-          <TaskList
-            todos={filteredItems}
-            onDeleted={this.deleteItem}
-            onToggleDone={this.onToggleDone}
-            onToggleEdit={this.onToggleEdit}
-            edit={edit}
-            updateTask={this.updateTask}
-          />
-        </section>
-        <Footer
-          itemsLeft={todoCount}
-          deletedCompletedItems={this.deletedCompletedItems}
-          filter={filter}
-          onFilterChange={this.onFilterChange}
-          onToggleDone={this.onToggleDone}
+  const doneCount = todoData.filter((el) => el.done).length
+  const todoCount = todoData.length - doneCount
+
+  return (
+    <section className="todoapp">
+      <NewTaskForm onItemAdded={addItem} />
+      <section className="main">
+        <TaskList
+          todos={filteredItems}
+          onDeleted={deleteItem}
+          onToggleDone={onToggleDone}
+          onToggleEdit={onToggleEdit}
+          updateTask={updateTask}
+          onPlay={onPlay}
+          onPause={onPause}
         />
       </section>
-    )
-  }
+      <Footer
+        itemsLeft={todoCount}
+        deletedCompletedItems={deletedCompletedItems}
+        filter={filter}
+        onFilterChange={setFilter}
+      />
+    </section>
+  )
 }
